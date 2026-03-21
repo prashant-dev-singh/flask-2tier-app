@@ -42,6 +42,6 @@ stages:
     - task: AzureWebAppContainer@1
       displayName: Deploy Container
       inputs:
-        azureSubscription: 'azure-conn'
+        azureSubscription: 'azure-service-connection'
         appName: 'flask-app1'
         containers: 'prashantdev4u/flask-2tier-app:latest'
