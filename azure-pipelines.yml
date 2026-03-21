@@ -1,0 +1,39 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  dockerHubRepo: 'prashantdev4/flask-2tier-app'
+  tag: 'latest'
+
+stages:
+
+# ---------------- BUILD & PUSH ----------------
+- stage: Build
+  jobs:
+  - job: BuildPush
+    steps:
+
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'docker-hub-connection'
+        repository: '$(dockerHubRepo)'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: |
+          $(tag)
+
+# ---------------- DEPLOY ----------------
+- stage: Deploy
+  dependsOn: Build
+  jobs:
+  - job: DeployJob
+    steps:
+
+    - task: AzureWebAppContainer@1
+      inputs:
+        azureSubscription: 'azure-service-connection'
+        appName: '<your-app-name>'
+        containers: '$(dockerHubRepo):latest'
