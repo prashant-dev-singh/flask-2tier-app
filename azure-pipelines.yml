@@ -2,38 +2,46 @@ trigger:
 - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: ubuntu-latest
 
 variables:
-  dockerHubRepo: 'prashantdev4u/flask-2tier-app'
-  tag: 'latest'
+  imageName: flask-2tier-app
+  dockerHubRepo: prashantdev4u/flask-2tier-app
 
 stages:
 
-# ---------------- BUILD & PUSH ----------------
+# =========================
+# BUILD & PUSH IMAGE
+# =========================
 - stage: Build
+  displayName: Build and Push Docker Image
   jobs:
-  - job: BuildPush
+  - job: BuildJob
     steps:
 
     - task: Docker@2
+      displayName: Build and Push Image
       inputs:
-        containerRegistry: 'docker-hub-connection'
+        containerRegistry: 'dockerhub-conn'
         repository: '$(dockerHubRepo)'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
         tags: |
-          $(tag)
+          latest
 
-# ---------------- DEPLOY ----------------
+# =========================
+# DEPLOY TO AZURE
+# =========================
 - stage: Deploy
+  displayName: Deploy to Azure App Service
   dependsOn: Build
   jobs:
   - job: DeployJob
     steps:
 
     - task: AzureWebAppContainer@1
+      displayName: Deploy Container
       inputs:
-        azureSubscription: 'azure-service-connection'
-        appName: '<your-app-name>'
-        containers: '$(dockerHubRepo):latest'
+        azureSubscription: 'azure-conn'
+        appName: 'flask-app1'
+        containers: 'prashantdev4u/flask-2tier-app:latest'
