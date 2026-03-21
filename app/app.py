@@ -8,19 +8,10 @@ app.config.from_object(Config)
 
 db.init_app(app)
 
-# ✅ WAIT FOR DB
-def wait_for_db():
-    for i in range(10):
-        try:
-            with app.app_context():
-                db.create_all()
-            print("✅ Database connected!")
-            return
-        except Exception as e:
-            print("⏳ Waiting for DB...")
-            time.sleep(3)
+# ✅ SIMPLE DB INIT (works everywhere)
+with app.app_context():
+    db.create_all()
 
-wait_for_db()
 
 # ✅ NEW WAY (Flask 3 compatible)
 with app.app_context():
